@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from app.application.exceptions import SectionNotFoundError
 from app.application.authorization import require_content_manager
+from app.application.exceptions import SectionNotFoundError
 from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.lecture import Lecture
@@ -40,4 +40,4 @@ class CreateLectureUseCase:
             await self.uow.lectures.add(lecture)
             await self.uow.sections.update(section)
             await self.uow.commit()
-            return lecture
+            return lecture

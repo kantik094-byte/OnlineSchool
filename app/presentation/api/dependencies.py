@@ -6,7 +6,6 @@ from app.application.use_cases.courses.get_course import GetCourseUseCase
 from app.application.use_cases.courses.get_course_structure import GetCourseStructureUseCase
 from app.application.use_cases.courses.get_courses import GetCoursesUseCase
 from app.application.use_cases.lectures.get_lecture import GetLectureUseCase
-
 from app.infrastructure.database import SessionFactory, SqlAlchemyUnitOfWork
 
 

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.application.exceptions import ModuleNotFoundError
 from app.application.authorization import require_content_manager
+from app.application.exceptions import ModuleNotFoundError
 from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.module import Module
@@ -36,4 +36,4 @@ class UpdateModuleUseCase:
             )
             await self.uow.modules.update(module)
             await self.uow.commit()
-            return module
+            return module

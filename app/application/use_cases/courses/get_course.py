@@ -3,7 +3,6 @@ from uuid import UUID
 
 from app.application.exceptions import CourseNotFoundError
 from app.application.interfaces.repositories import CourseRepository
-
 from app.domain.entities import Course
 
 

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from app.application.exceptions import ModuleNotFoundError
 from app.application.authorization import require_content_manager
+from app.application.exceptions import ModuleNotFoundError
 from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.section import Section
@@ -40,4 +40,4 @@ class CreateSectionUseCase:
             await self.uow.sections.add(section)
             await self.uow.modules.update(module)
             await self.uow.commit()
-            return section
+            return section

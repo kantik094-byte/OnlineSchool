@@ -5,7 +5,6 @@ from uuid import UUID
 from app.domain.exceptions import InvalidUserError
 
 
-
 class UserRole(StrEnum):
     STUDENT = "student"
     AUTHOR = "author"

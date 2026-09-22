@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter # Depends
+from fastapi import APIRouter  # Depends
 
 from app.application.use_cases.courses.get_course import GetCourseQuery, GetCourseUseCase
 from app.application.use_cases.courses.get_course_structure import (
@@ -11,7 +11,6 @@ from app.application.use_cases.courses.get_course_structure import (
 )
 from app.application.use_cases.courses.get_courses import GetCoursesQuery, GetCoursesUseCase
 from app.application.use_cases.lectures.get_lecture import GetLectureQuery, GetLectureUseCase
-
 from app.presentation.api.schemas import (
     CourseListItemResponse,
     CourseResponse,

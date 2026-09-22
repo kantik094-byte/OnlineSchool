@@ -29,12 +29,10 @@ from app.application.use_cases.modules.update_module import (
     UpdateModuleUseCase,
 )
 from app.application.use_cases.sections.create_sections import CreateSectionUseCase, CreateSectionCommand
-
 from app.application.use_cases.sections.update_section import (
     UpdateSectionCommand,
     UpdateSectionUseCase,
 )
-
 from app.presentation.api.schemas import (
     CourseResponse,
     CreateCourseRequest,
@@ -51,10 +49,6 @@ from app.presentation.api.schemas import (
     ErrorResponse,
 )
 from app.presentation.api.security import ADMIN_RESPONSES, AUTH_REQUIRED
-
-
-
-
 
 router = APIRouter(
     prefix="/admin",

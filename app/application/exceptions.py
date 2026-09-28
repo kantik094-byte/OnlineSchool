@@ -29,9 +29,6 @@ class InvalidCredentialsError(ApplicationError):
 class UserNotFoundError(ApplicationError):
     pass
 
-class AuthenticationError(ApplicationError):
-    """Нет учётных данных, токен невалиден или пользователь не найден."""
-
 
 class AccessDeniedError(ApplicationError):
     """Пользователь аутентифицирован, но прав на операцию нет."""
@@ -39,3 +36,7 @@ class AccessDeniedError(ApplicationError):
 
 class InvalidTokenError(ApplicationError):
     """Контракт TokenService: токен не удалось проверить."""
+
+
+class AuthenticationError(ApplicationError):
+    pass

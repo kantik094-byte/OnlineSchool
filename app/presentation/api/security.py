@@ -1,7 +1,7 @@
 from fastapi import Request, Security
 from fastapi.security import HTTPBearer
 
-from app.application.exceptions import AuthenticationError, InvalidTokenError
+from app.application.exceptions import InvalidTokenError, AuthenticationError
 from app.application.interfaces.repositories import UserRepository
 from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.services.token_service import TokenService

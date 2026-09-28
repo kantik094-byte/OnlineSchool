@@ -4,11 +4,10 @@ from fastapi.responses import JSONResponse
 from app.application.exceptions import (
     AccessDeniedError,
     ApplicationError,
-    AuthenticationError,
     CourseNotFoundError,
     LectureNotFoundError,
     ModuleNotFoundError,
-    SectionNotFoundError,
+    SectionNotFoundError, AuthenticationError,
 )
 from app.domain.exceptions import DomainError
 from app.presentation.api.schemas import ErrorResponse

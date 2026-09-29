@@ -1,14 +1,10 @@
-from uuid import uuid4
-
-import pytest
-
 from app.application.exceptions import InvalidTokenError, AuthenticationError
 from app.application.interfaces.repositories import UserRepository, LectureRepository, SectionRepository, ModuleRepository, CourseRepository
 from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities.user import User, UserRole
+from app.domain.entities.user import User
 
 
 class FakeIdentityProvider(IdentityProvider):
@@ -161,13 +157,3 @@ class StubTokenService(TokenService):
         if token in self._users:
             return self._users[token]
         raise InvalidTokenError('Token is invalid.')
-
-
-@pytest.fixture
-def admin() -> User:
-    return User(id=uuid4(), email='admin@example.com', hashed_password='hashed::x', role=UserRole.ADMIN)
-
-
-@pytest.fixture
-def student() -> User:
-    return User(id=uuid4(), email='student@example.com', hashed_password='hashed::x', role=UserRole.STUDENT)

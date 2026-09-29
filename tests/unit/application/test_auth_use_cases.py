@@ -6,12 +6,11 @@ from app.application.exceptions import UserAlreadyExistsError, InvalidCredential
 from app.application.use_cases.auth.login_user import LoginUserUseCase, LoginUserCommand
 from app.application.use_cases.auth.register_user import RegisterUserUseCase, RegisterUserCommand
 from app.domain.entities.user import UserRole, User
-from tests.conftest import FakeUnitOfWork
 
 
 @pytest.mark.asyncio
-async def test_register_user_creates_student_and_commits(uow, password_hasher) -> None:
-    use_case = RegisterUserUseCase(uow=uow, password_hasher=password_hasher)
+async def test_register_user_creates_student_and_commits(uow, fake_password_hasher) -> None:
+    use_case = RegisterUserUseCase(uow=uow, password_hasher=fake_password_hasher)
 
     result = await use_case.execute(
         RegisterUserCommand(
@@ -27,8 +26,7 @@ async def test_register_user_creates_student_and_commits(uow, password_hasher) -
 
 
 @pytest.mark.asyncio
-async def test_register_user_raises_error_when_email_already_exists(password_hasher) -> None:
-    uow = FakeUnitOfWork()
+async def test_register_user_raises_error_when_email_already_exists(uow, fake_password_hasher) -> None:
     existing_user = User(
         id=uuid4(),
         email='student@example.com',
@@ -37,7 +35,7 @@ async def test_register_user_raises_error_when_email_already_exists(password_has
     )
     await uow.users.add(existing_user)
 
-    use_case = RegisterUserUseCase(uow=uow, password_hasher=password_hasher)
+    use_case = RegisterUserUseCase(uow=uow, password_hasher=fake_password_hasher)
 
     with pytest.raises(UserAlreadyExistsError):
         await use_case.execute(
@@ -49,7 +47,7 @@ async def test_register_user_raises_error_when_email_already_exists(password_has
 
 
 @pytest.mark.asyncio
-async def test_login_user_returns_access_token(password_hasher, uow, token_service) -> None:
+async def test_login_user_returns_access_token(fake_password_hasher, uow, fake_token_service) -> None:
     user = User(
         id=uuid4(),
         email='admin@example.com',
@@ -60,8 +58,8 @@ async def test_login_user_returns_access_token(password_hasher, uow, token_servi
 
     use_case = LoginUserUseCase(
         uow=uow,
-        password_hasher=password_hasher,
-        token_service=token_service,
+        password_hasher=fake_password_hasher,
+        token_service=fake_token_service,
     )
 
     result = await use_case.execute(
@@ -76,11 +74,11 @@ async def test_login_user_returns_access_token(password_hasher, uow, token_servi
 
 
 @pytest.mark.asyncio
-async def test_login_user_raises_error_when_email_is_unknown(password_hasher, token_service) -> None:
+async def test_login_user_raises_error_when_email_is_unknown(uow, fake_password_hasher, fake_token_service) -> None:
     use_case = LoginUserUseCase(
-        uow=FakeUnitOfWork(),
-        password_hasher=password_hasher,
-        token_service=token_service,
+        uow=uow,
+        password_hasher=fake_password_hasher,
+        token_service=fake_token_service,
     )
 
     with pytest.raises(InvalidCredentialsError):
@@ -93,7 +91,7 @@ async def test_login_user_raises_error_when_email_is_unknown(password_hasher, to
 
 
 @pytest.mark.asyncio
-async def test_login_user_raises_error_when_password_is_invalid(password_hasher, token_service, uow) -> None:
+async def test_login_user_raises_error_when_password_is_invalid(fake_password_hasher, fake_token_service, uow) -> None:
     user = User(
         id=uuid4(),
         email='admin@example.com',
@@ -104,8 +102,8 @@ async def test_login_user_raises_error_when_password_is_invalid(password_hasher,
 
     use_case = LoginUserUseCase(
         uow=uow,
-        password_hasher=password_hasher,
-        token_service=token_service,
+        password_hasher=fake_password_hasher,
+        token_service=fake_token_service,
     )
 
     with pytest.raises(InvalidCredentialsError):

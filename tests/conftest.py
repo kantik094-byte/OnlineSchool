@@ -1,5 +1,8 @@
+from uuid import uuid4
+
 import pytest
 
+from app.domain.entities.user import User, UserRole
 from tests.fakes import FakeUserRepository, FakeUnitOfWork, StubPasswordHasher, StubTokenService, FakeCourseRepository, \
     FakeModuleRepository, FakeSectionRepository, FakeLectureRepository, FakeIdentityProvider
 
@@ -15,12 +18,12 @@ async def uow() -> FakeUnitOfWork:
 
 
 @pytest.fixture
-def password_hasher() -> StubPasswordHasher:
+def fake_password_hasher() -> StubPasswordHasher:
     return StubPasswordHasher()
 
 
 @pytest.fixture
-def token_service() -> StubTokenService:
+def fake_token_service() -> StubTokenService:
     return StubTokenService()
 
 
@@ -43,3 +46,12 @@ def fake_section_repo() -> FakeSectionRepository:
 def fake_lecture_repo() -> FakeLectureRepository:
     return FakeLectureRepository()
 
+
+@pytest.fixture
+def admin() -> User:
+    return User(id=uuid4(), email='admin@example.com', hashed_password='hashed::x', role=UserRole.ADMIN)
+
+
+@pytest.fixture
+def student() -> User:
+    return User(id=uuid4(), email='student@example.com', hashed_password='hashed::x', role=UserRole.STUDENT)

@@ -20,20 +20,19 @@ class LoginUserUseCase:
         self.token_service = token_service
 
     async def execute(self, command: LoginUserCommand) -> AuthToken:
-        async with self.uow:
-            user = await self.uow.users.get_by_email(command.email)
-            if user is None:
-                raise InvalidCredentialsError('Invalid email or password.')
+        user = await self.uow.users.get_by_email(command.email)
+        if user is None:
+            raise InvalidCredentialsError('Invalid email or password.')
 
-            is_valid_password = self.password_hasher.verify(
-                command.password,
-                user.hashed_password,
-            )
-            if not is_valid_password:
-                raise InvalidCredentialsError('Invalid email or password.')
+        is_valid_password = self.password_hasher.verify(
+            command.password,
+            user.hashed_password,
+        )
+        if not is_valid_password:
+            raise InvalidCredentialsError('Invalid email or password.')
 
-            access_token = self.token_service.create_access_token(
-                user_id=user.id,
-                role=user.role.value,
-            )
-            return AuthToken(access_token=access_token)
+        access_token = self.token_service.create_access_token(
+            user_id=user.id,
+            role=user.role.value,
+        )
+        return AuthToken(access_token=access_token)

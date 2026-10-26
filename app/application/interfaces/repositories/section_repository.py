@@ -14,9 +14,21 @@ class SectionRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_for_update(self, section_id: UUID) -> Section | None:
+        raise NotImplementedError
+
+    @abstractmethod
     async def add(self, section: Section) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def update(self, section: Section) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def update_many(self, sections: list[Section]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def remove(self, section: Section) -> None:
         raise NotImplementedError

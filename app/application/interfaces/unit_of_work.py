@@ -15,13 +15,13 @@ class UnitOfWork(ABC):
     lectures: LectureRepository
     users: UserRepository
 
-    @abstractmethod
-    async def __aenter__(self) -> 'UnitOfWork':
-        raise NotImplementedError
-
-    @abstractmethod
-    async def __aexit__(self, exc_type, exc, tb) -> None:
-        raise NotImplementedError
+    # @abstractmethod
+    # async def __aenter__(self) -> 'UnitOfWork':
+    #     raise NotImplementedError
+    #
+    # @abstractmethod
+    # async def __aexit__(self, exc_type, exc, tb) -> None:
+    #     raise NotImplementedError
 
     @abstractmethod
     async def commit(self) -> None:

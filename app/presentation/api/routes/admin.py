@@ -8,6 +8,7 @@ from app.application.use_cases.courses.create_course import (
     CreateCourseCommand,
     CreateCourseUseCase,
 )
+from app.application.use_cases.courses.delete_course import DeleteCourseUseCase, CourseDeleteCommand
 from app.application.use_cases.courses.update_course import (
     UpdateCourseCommand,
     UpdateCourseUseCase,
@@ -16,6 +17,7 @@ from app.application.use_cases.lectures.create_lecture import (
     CreateLectureCommand,
     CreateLectureUseCase,
 )
+from app.application.use_cases.lectures.delete_lecture import DeleteLectureUseCase, DeleteLectureCommand
 from app.application.use_cases.lectures.update_lecture import (
     UpdateLectureCommand,
     UpdateLectureUseCase,
@@ -24,11 +26,13 @@ from app.application.use_cases.modules.create_module import (
     CreateModuleCommand,
     CreateModuleUseCase,
 )
+from app.application.use_cases.modules.delete_module import DeleteModuleUseCase, DeleteModuleCommand
 from app.application.use_cases.modules.update_module import (
     UpdateModuleCommand,
     UpdateModuleUseCase,
 )
 from app.application.use_cases.sections.create_sections import CreateSectionUseCase, CreateSectionCommand
+from app.application.use_cases.sections.delete_section import DeleteSectionUseCase, DeleteSectionCommand
 from app.application.use_cases.sections.update_section import (
     UpdateSectionCommand,
     UpdateSectionUseCase,
@@ -84,6 +88,7 @@ async def create_course(request: CreateCourseRequest, use_case: FromDishka[Creat
     return CourseResponse.model_validate(result)
 
 
+
 @router.put("/courses/{course_id}", response_model=CourseResponse,
             summary="Update course",
             description=(
@@ -110,6 +115,21 @@ async def update_course(course_id: UUID, request: UpdateCourseRequest, use_case:
         )
     )
     return CourseResponse.model_validate(result)
+
+
+@router.delete("/courses/{course_id}", status_code=status.HTTP_204_NO_CONTENT,
+               summary="Delete course",
+               description="Deletes a course by its identifier.",
+               responses={
+                   404: {
+                       "description": "Course was not found.",
+                       "model": ErrorResponse,
+                   }
+               }
+)
+async def  delete_course(course_id: UUID, use_case: FromDishka[DeleteCourseUseCase]) -> None:
+    await use_case.execute(CourseDeleteCommand(course_id=course_id))
+
 
 
 @router.post("/courses/{course_id}/modules", response_model=ModuleResponse, status_code=status.HTTP_201_CREATED,
@@ -141,6 +161,7 @@ async def create_module(course_id: UUID, request: CreateModuleRequest, use_case:
     return ModuleResponse.model_validate(result)
 
 
+
 @router.put("/modules/{module_id}", response_model=ModuleResponse,
             summary="Update module",
             description=(
@@ -168,6 +189,21 @@ async def update_module(module_id: UUID, request: UpdateModuleRequest, use_case:
         )
     )
     return ModuleResponse.model_validate(result)
+
+
+
+@router.delete("/modules/{module_id}", status_code=status.HTTP_204_NO_CONTENT,
+               summary="Delete module",
+               description="Deletes a module by its identifier.",
+               responses={
+                   404: {
+                       "description": "Module or Course was not found.",
+                       "model": ErrorResponse,
+                   }
+               })
+async def delete_module(module_id: UUID, use_case: FromDishka[DeleteModuleUseCase]) -> None:
+    await use_case.execute(DeleteModuleCommand(module_id=module_id))
+
 
 
 @router.post("/modules/{module_id}/sections", response_model=SectionResponse, status_code=status.HTTP_201_CREATED,
@@ -199,6 +235,7 @@ async def create_section(module_id: UUID, request: CreateSectionRequest, use_cas
     return SectionResponse.model_validate(result)
 
 
+
 @router.put("/sections/{section_id}", response_model=SectionResponse,
             summary="Update section",
             description=(
@@ -226,6 +263,20 @@ async def update_section(section_id: UUID, request: UpdateSectionRequest, use_ca
         )
     )
     return SectionResponse.model_validate(result)
+
+
+@router.delete("/sections/{section_id}", status_code=status.HTTP_204_NO_CONTENT,
+               summary="Delete section",
+               description="Deletes a section by its identifier.",
+               responses={
+                   404: {
+                       "description": "Section or Module was not found.",
+                       "model": ErrorResponse
+                   }
+               }
+)
+async def delete_section(section_id: UUID, use_case: FromDishka[DeleteSectionUseCase]) -> None:
+    await use_case.execute(DeleteSectionCommand(section_id=section_id))
 
 
 @router.post("/sections/{section_id}/lectures", response_model=LectureResponse, status_code=status.HTTP_201_CREATED,
@@ -284,3 +335,20 @@ async def update_lecture(lecture_id: UUID, request: UpdateLectureRequest, use_ca
         )
     )
     return LectureResponse.model_validate(result)
+
+
+
+@router.delete("/lectures/{lecture_id}", status_code=status.HTTP_204_NO_CONTENT,
+               summary="Delete lecture",
+               description="Deletes a lecture by its identifier.",
+               responses={
+                   404: {
+                       "description": "Lecture or Section was not found.",
+                       "model": ErrorResponse
+                   }
+               }
+)
+async def delete_lecture(lecture_id: UUID, use_case: FromDishka[DeleteLectureUseCase]) -> None:
+    await use_case.execute(DeleteLectureCommand(lecture_id=lecture_id))
+
+

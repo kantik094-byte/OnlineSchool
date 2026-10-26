@@ -37,6 +37,7 @@ class GetCourseStructureUseCase:
         modules = await self.module_repository.get_by_ids(course.module_ids)
         module_dtos: list[ModuleStructureDTO] = []
 
+        #TODO надо бы исправить тут N+1 запросы
         for module in sorted(modules, key=lambda item: item.position):
             sections = await self.section_repository.get_by_ids(module.section_ids)
             section_dtos: list[SectionStructureDTO] = []

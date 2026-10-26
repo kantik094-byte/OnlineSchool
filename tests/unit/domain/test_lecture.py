@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.entities.lecture import Lecture
+from app.domain.entities import Lecture
 from app.domain.exceptions import InvalidLectureError
 
 
@@ -11,12 +11,12 @@ def test_lecture_is_created_with_valid_data() -> None:
         id=uuid4(),
         section_id=uuid4(),
         title='Lecture 1',
-        content='Full lecture content',
-        position=1,
+        content='Content',
+        position=1
     )
 
     assert lecture.title == 'Lecture 1'
-    assert lecture.content == 'Full lecture content'
+    assert lecture.content == 'Content'
     assert lecture.position == 1
 
 

@@ -14,9 +14,21 @@ class ModuleRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_for_update(self, module_id: UUID) -> Module | None:
+        raise NotImplementedError
+
+    @abstractmethod
     async def add(self, module: Module) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def update(self, module: Module) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def update_many(self, modules: list[Module]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def remove(self, module: Module) -> None:
         raise NotImplementedError

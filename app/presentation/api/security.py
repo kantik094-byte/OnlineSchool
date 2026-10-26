@@ -9,7 +9,7 @@ from app.domain.entities.user import User
 from app.presentation.api.schemas import ErrorResponse
 
 # auto_error=False: сам HTTPBearer ничего не бросает, ошибку
-# в едином формате ErrorResponse отдаст наш IdentityProvider.
+# в едином формате ErrorResponse отдаст IdentityProvider.
 bearer_scheme = HTTPBearer(
     auto_error=False,
     description='JWT-токен в заголовке Authorization: Bearer <token>',

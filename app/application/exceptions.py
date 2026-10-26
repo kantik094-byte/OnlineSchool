@@ -10,7 +10,7 @@ class LectureNotFoundError(ApplicationError):
     pass
 
 
-class ModuleNotFoundError(ApplicationError):
+class CourseModuleNotFoundError(ApplicationError):
     pass
 
 

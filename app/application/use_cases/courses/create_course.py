@@ -21,12 +21,11 @@ class CreateCourseUseCase:
     async def execute(self, command: CreateCourseCommand) -> Course:
         await require_content_manager(self.idp)
 
-        async with self.uow:
-            course = Course(
-                id=uuid4(),
-                title=command.title,
-                description=command.description,
-            )
-            await self.uow.courses.add(course)
-            await self.uow.commit()
-            return course
+        course = Course(
+            id=uuid4(),
+            title=command.title,
+            description=command.description,
+        )
+        await self.uow.courses.add(course)
+        await self.uow.commit()
+        return course

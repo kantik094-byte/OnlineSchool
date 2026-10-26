@@ -1,15 +1,31 @@
 import uvicorn
+from dishka import Provider, AsyncContainer
 from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka, FastapiProvider
 from fastapi import FastAPI
 
+from app.di.providers import AuthProvider, ConfigProvider, DatabaseProvider, SecurityProvider, UseCasesProvider
 from app.infrastructure.config import get_settings
 from app.presentation.api.handlers import register_exception_handlers
 from app.presentation.api.routes import router as api_router
-from app.di.providers import AuthProvider, ConfigProvider, DatabaseProvider, SecurityProvider, UseCasesProvider
 
 
-def create_app() -> FastAPI:
+def create_container(*overrides: Provider, context: dict | None = None) -> AsyncContainer:
+    """Единственное место, где собирается граф зависимостей."""
+    return make_async_container(
+        ConfigProvider(),
+        DatabaseProvider(),
+        SecurityProvider(),
+        UseCasesProvider(),
+        AuthProvider(),
+        FastapiProvider(),
+        *overrides,          # тестовые провайдеры идут последними и перекрывают боевые
+        context=context,
+    )
+
+
+
+def create_app(container: AsyncContainer | None = None) -> FastAPI:
     settings = get_settings()
 
     app = FastAPI(
@@ -38,17 +54,7 @@ def create_app() -> FastAPI:
     )
 
     register_exception_handlers(app)
-
-    container = make_async_container(
-        ConfigProvider(),      # Settings, DatabaseSettings, JwtSettings
-        DatabaseProvider(),    # session_factory, UnitOfWork, репозитории
-        SecurityProvider(),    # PasswordHasher, TokenService
-        UseCasesProvider(),    # все use case'ы
-        AuthProvider(),        # IdentityProvider
-        FastapiProvider(),
-    )
-
-    setup_dishka(container, app)
+    setup_dishka(container or create_container(), app)
     app.include_router(api_router)
     return app
 

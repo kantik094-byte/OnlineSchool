@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -30,10 +30,21 @@ class SqlAlchemyModuleRepository(ModuleRepository):
         stmt = (
             select(ModuleModel)
             .options(selectinload(ModuleModel.sections))
-            .where(ModuleModel.id.in_([str(item) for item in module_ids]))
+            .where(ModuleModel.id.in_([str(item) for item in module_ids])).execution_options(populate_existing=True)
         )
         result = await self.session.execute(stmt)
         return [ModuleMapper.to_domain(model) for model in result.scalars().all()]
+
+    async def get_for_update(self, module_id: UUID) -> Module | None:
+        stmt = (select(ModuleModel).
+                options(selectinload(ModuleModel.sections)).
+                where(ModuleModel.id == str(module_id)).
+                with_for_update().
+                execution_options(populate_existing=True)
+        )
+
+        model = (await self.session.execute(stmt)).scalar_one_or_none()
+        return None if model is None else ModuleMapper.to_domain(model)
 
     async def add(self, module: Module) -> None:
         self.session.add(ModuleMapper.to_model(module))
@@ -46,4 +57,20 @@ class SqlAlchemyModuleRepository(ModuleRepository):
         model.title = module.title
         model.description = module.description
         model.position = module.position
+        await self.session.flush()
+
+    async def update_many(self, modules: list[Module]) -> None:
+        if not modules:
+            return
+
+        await self.session.execute(
+            update(ModuleModel),
+                   [
+                       {"id": str(module.id), "title": module.title, "description": module.description, "position": module.position} for module in modules
+                   ]
+        )
+        await self.session.flush()
+
+    async def remove(self, module: Module) -> None:
+        await self.session.execute(delete(ModuleModel).where(ModuleModel.id == str(module.id)))
         await self.session.flush()

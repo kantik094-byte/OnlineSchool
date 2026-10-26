@@ -10,6 +10,10 @@ class CourseRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_for_update(self, course_id: UUID) -> Course | None:
+        raise NotImplementedError
+
+    @abstractmethod
     async def list(self) -> 'list[Course]':
         raise NotImplementedError
 
@@ -19,4 +23,8 @@ class CourseRepository(ABC):
 
     @abstractmethod
     async def update(self, course: Course) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def remove(self, course: Course) -> None:
         raise NotImplementedError

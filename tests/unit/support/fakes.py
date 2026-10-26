@@ -4,6 +4,10 @@ from app.application.interfaces.services.identity_provider import IdentityProvid
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.domain.entities import Course
+from app.domain.entities.lecture import Lecture
+from app.domain.entities.module import Module
+from app.domain.entities.section import Section
 from app.domain.entities.user import User
 
 
@@ -25,6 +29,9 @@ class FakeCourseRepository(CourseRepository):
     async def get_by_id(self, course_id):
         return self.items.get(course_id)
 
+    async def get_for_update(self, course_id) -> Course | None:
+        return self.items.get(course_id)
+
     async def list(self):
         return list(self.items.values())
 
@@ -33,6 +40,9 @@ class FakeCourseRepository(CourseRepository):
 
     async def update(self, course) -> None:
         self.items[course.id] = course
+
+    async def remove(self, course) -> None:
+        self.items.pop(course.id, None)
 
 
 
@@ -47,11 +57,22 @@ class FakeModuleRepository(ModuleRepository):
     async def get_by_ids(self, module_ids):
         return [self.items[module_id] for module_id in module_ids if module_id in self.items]
 
+    async def get_for_update(self, module_id) -> Module | None:
+        return self.items.get(module_id)
+
     async def add(self, module) -> None:
         self.items[module.id] = module
 
     async def update(self, module) -> None:
         self.items[module.id] = module
+
+    async def update_many(self, modules: list[Module]) -> None:
+        for module in modules:
+            self.items[module.id] = module
+
+    async def remove(self, module) -> None:
+        self.items.pop(module.id, None)
+
 
 
 
@@ -66,11 +87,21 @@ class FakeSectionRepository(SectionRepository):
     async def get_by_ids(self, section_ids):
         return [self.items[section_id] for section_id in section_ids if section_id in self.items]
 
+    async def get_for_update(self, section_id) -> Section | None:
+        return self.items.get(section_id)
+
     async def add(self, section) -> None:
         self.items[section.id] = section
 
     async def update(self, section) -> None:
         self.items[section.id] = section
+
+    async def update_many(self, sections: list[Section]) -> None:
+        for section in sections:
+            self.items[section.id] = section
+
+    async def remove(self, section) -> None:
+        self.items.pop(section.id, None)
 
 
 
@@ -85,11 +116,21 @@ class FakeLectureRepository(LectureRepository):
     async def get_by_ids(self, lecture_ids):
         return [self.items[lecture_id] for lecture_id in lecture_ids if lecture_id in self.items]
 
+    async def get_for_update(self, lecture_id) -> Lecture | None:
+        return self.items.get(lecture_id)
+
     async def add(self, lecture) -> None:
         self.items[lecture.id] = lecture
 
     async def update(self, lecture) -> None:
         self.items[lecture.id] = lecture
+
+    async def update_many(self, lectures: list[Lecture]) -> None:
+        for lecture in lectures:
+            self.items[lecture.id] = lecture
+
+    async def remove(self, lecture) -> None:
+        self.items.pop(lecture.id, None)
 
 
 
@@ -121,11 +162,11 @@ class FakeUnitOfWork(UnitOfWork):
         self.users = FakeUserRepository()
         self.committed = False
 
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        return None
+    # async def __aenter__(self):
+    #     return self
+    #
+    # async def __aexit__(self, exc_type, exc, tb):
+    #     return None
 
     async def commit(self) -> None:
         self.committed = True

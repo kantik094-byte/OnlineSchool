@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.domain.entities.user import User, UserRole
+from app.domain.entities import User, UserRole
 from app.infrastructure.database.models import UserModel
 
 

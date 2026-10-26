@@ -1,7 +1,5 @@
 from uuid import uuid4
 
-import pytest
-
 from app.application.dto.course_structure import CourseStructureDTO, ModuleStructureDTO, SectionStructureDTO, LectureStructureDTO
 from app.application.use_cases.courses.get_course import GetCourseUseCase, GetCourseQuery
 from app.application.use_cases.courses.get_course_structure import GetCourseStructureUseCase, GetCourseStructureQuery
@@ -13,7 +11,6 @@ from app.domain.entities.module import Module
 from app.domain.entities.section import Section
 
 
-@pytest.mark.asyncio
 async def test_get_course_by_id(uow):
     course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.")
     await uow.courses.add(course)
@@ -27,7 +24,7 @@ async def test_get_course_by_id(uow):
     assert result == course
 
 
-@pytest.mark.asyncio
+
 async def test_get_courses(uow):
     first_course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.")
     await uow.courses.add(first_course)
@@ -42,7 +39,7 @@ async def test_get_courses(uow):
 
 
 
-@pytest.mark.asyncio
+
 async def test_get_course_structure(uow):
 
     course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.")
@@ -127,7 +124,7 @@ async def test_get_course_structure(uow):
 
 
 
-@pytest.mark.asyncio
+
 async def test_get_lecture(uow):
     lecture = Lecture(id=uuid4(), section_id=uuid4(), title="Lecture 1", content="First lecture", position=1)
     await uow.lectures.add(lecture)

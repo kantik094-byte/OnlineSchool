@@ -19,18 +19,17 @@ class RegisterUserUseCase:
         self.password_hasher = password_hasher
 
     async def execute(self, command: RegisterUserCommand) -> User:
-        async with self.uow:
-            existing_user = await self.uow.users.get_by_email(command.email)
-            if existing_user is not None:
-                raise UserAlreadyExistsError('User with this email already exists.')
+        existing_user = await self.uow.users.get_by_email(command.email)
+        if existing_user is not None:
+            raise UserAlreadyExistsError('User with this email already exists.')
 
-            user = User(
-                id=uuid4(),
-                email=command.email,
-                hashed_password=self.password_hasher.hash(command.password),
-                role=UserRole.STUDENT,
-            )
+        user = User(
+            id=uuid4(),
+            email=command.email,
+            hashed_password=self.password_hasher.hash(command.password),
+            role=UserRole.STUDENT,
+        )
 
-            await self.uow.users.add(user)
-            await self.uow.commit()
-            return user
+        await self.uow.users.add(user)
+        await self.uow.commit()
+        return user

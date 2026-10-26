@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -24,6 +24,16 @@ class SqlAlchemyCourseRepository(CourseRepository):
         model = result.scalar_one_or_none()
         return None if model is None else CourseMapper.to_domain(model)
 
+    async def get_for_update(self, course_id: UUID) -> Course | None:
+        stmt = (select(CourseModel).
+                options(selectinload(CourseModel.modules)).
+                where(CourseModel.id == str(course_id))
+                .with_for_update().
+                execution_options(populate_existing=True))
+
+        result = (await self.session.execute(stmt)).scalar_one_or_none()
+        return None if result is None else CourseMapper.to_domain(result)
+
     async def list(self) -> list[Course]:
         stmt = select(CourseModel).options(selectinload(CourseModel.modules))
         result = await self.session.execute(stmt)
@@ -39,4 +49,8 @@ class SqlAlchemyCourseRepository(CourseRepository):
             return
         model.title = course.title
         model.description = course.description
+        await self.session.flush()
+
+    async def remove(self, course: Course) -> None:
+        await self.session.execute(delete(CourseModel).where(CourseModel.id == str(course.id)))
         await self.session.flush()

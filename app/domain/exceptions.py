@@ -20,3 +20,7 @@ class InvalidLectureError(DomainError):
 
 class InvalidUserError(DomainError):
     pass
+
+
+class InvalidPositionError(DomainError):
+    pass

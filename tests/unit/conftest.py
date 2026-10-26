@@ -1,10 +1,8 @@
-from uuid import uuid4
-
 import pytest
 
-from app.domain.entities.user import User, UserRole
-from tests.fakes import FakeUserRepository, FakeUnitOfWork, StubPasswordHasher, StubTokenService, FakeCourseRepository, \
-    FakeModuleRepository, FakeSectionRepository, FakeLectureRepository, FakeIdentityProvider
+from tests.unit.support.factories import ContentFactory, UserFactory
+from tests.unit.support.fakes import FakeUserRepository, FakeUnitOfWork, StubPasswordHasher, StubTokenService, FakeCourseRepository, \
+    FakeModuleRepository, FakeSectionRepository, FakeLectureRepository
 
 
 @pytest.fixture
@@ -48,10 +46,10 @@ def fake_lecture_repo() -> FakeLectureRepository:
 
 
 @pytest.fixture
-def admin() -> User:
-    return User(id=uuid4(), email='admin@example.com', hashed_password='hashed::x', role=UserRole.ADMIN)
+def content(uow) -> ContentFactory:
+    return ContentFactory(uow)
 
 
 @pytest.fixture
-def student() -> User:
-    return User(id=uuid4(), email='student@example.com', hashed_password='hashed::x', role=UserRole.STUDENT)
+def users() -> UserFactory:
+    return UserFactory()

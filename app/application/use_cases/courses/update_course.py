@@ -23,12 +23,11 @@ class UpdateCourseUseCase:
     async def execute(self, command: UpdateCourseCommand) -> Course:
         await require_content_manager(self.idp)
 
-        async with self.uow:
-            course = await self.uow.courses.get_by_id(command.course_id)
-            if course is None:
-                raise CourseNotFoundError("Course not found.")
+        course = await self.uow.courses.get_by_id(command.course_id)
+        if course is None:
+            raise CourseNotFoundError("Course not found.")
 
-            course.update(title=command.title, description=command.description)
-            await self.uow.courses.update(course)
-            await self.uow.commit()
-            return course
+        course.update(title=command.title, description=command.description)
+        await self.uow.courses.update(course)
+        await self.uow.commit()
+        return course

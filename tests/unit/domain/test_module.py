@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.entities.module import Module
+from app.domain.entities import Module
 from app.domain.exceptions import InvalidModuleError
 
 
@@ -18,6 +18,62 @@ def test_module_is_created_with_valid_data() -> None:
     assert module.title == 'Module 1'
     assert module.position == 1
     assert module.section_ids == []
+
+
+
+def test_add_section_to_module() -> None:
+    module = Module(
+        id=uuid4(),
+        course_id=uuid4(),
+        title='Module 1',
+        description='Introduction module',
+        position=1,
+    )
+
+    section_id = uuid4()
+    module.add_section(section_id)
+
+    assert len(module.section_ids) == 1
+    assert section_id in module.section_ids
+
+
+def test_remove_section_from_module() -> None:
+    module = Module(
+        id=uuid4(),
+        course_id=uuid4(),
+        title='Module 1',
+        description='Introduction module',
+        position=1,
+    )
+
+    section_id = uuid4()
+    module.add_section(section_id)
+
+    module.remove_section(section_id)
+
+    assert len(module.section_ids) == 0
+
+
+
+def test_remove_section_raises_error_when_section_id_is_not_exist() -> None:
+    module = Module(
+        id=uuid4(),
+        course_id=uuid4(),
+        title='Module 1',
+        description='Introduction module',
+        position=1,
+    )
+
+    section_id = uuid4()
+    module.add_section(section_id)
+
+    deleting_id = uuid4()
+    with pytest.raises(InvalidModuleError):
+        module.remove_section(deleting_id)
+
+    assert len(module.section_ids) == 1
+    assert section_id in module.section_ids
+
 
 
 def test_module_raises_error_when_position_is_not_positive() -> None:

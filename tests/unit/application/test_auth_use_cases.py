@@ -5,10 +5,9 @@ import pytest
 from app.application.exceptions import UserAlreadyExistsError, InvalidCredentialsError
 from app.application.use_cases.auth.login_user import LoginUserUseCase, LoginUserCommand
 from app.application.use_cases.auth.register_user import RegisterUserUseCase, RegisterUserCommand
-from app.domain.entities.user import UserRole, User
+from app.domain.entities import UserRole, User
 
 
-@pytest.mark.asyncio
 async def test_register_user_creates_student_and_commits(uow, fake_password_hasher) -> None:
     use_case = RegisterUserUseCase(uow=uow, password_hasher=fake_password_hasher)
 
@@ -25,7 +24,7 @@ async def test_register_user_creates_student_and_commits(uow, fake_password_hash
     assert uow.committed is True
 
 
-@pytest.mark.asyncio
+
 async def test_register_user_raises_error_when_email_already_exists(uow, fake_password_hasher) -> None:
     existing_user = User(
         id=uuid4(),
@@ -46,7 +45,7 @@ async def test_register_user_raises_error_when_email_already_exists(uow, fake_pa
         )
 
 
-@pytest.mark.asyncio
+
 async def test_login_user_returns_access_token(fake_password_hasher, uow, fake_token_service) -> None:
     user = User(
         id=uuid4(),
@@ -73,7 +72,7 @@ async def test_login_user_returns_access_token(fake_password_hasher, uow, fake_t
     assert result.access_token.startswith('token-for-')
 
 
-@pytest.mark.asyncio
+
 async def test_login_user_raises_error_when_email_is_unknown(uow, fake_password_hasher, fake_token_service) -> None:
     use_case = LoginUserUseCase(
         uow=uow,
@@ -90,7 +89,7 @@ async def test_login_user_raises_error_when_email_is_unknown(uow, fake_password_
         )
 
 
-@pytest.mark.asyncio
+
 async def test_login_user_raises_error_when_password_is_invalid(fake_password_hasher, fake_token_service, uow) -> None:
     user = User(
         id=uuid4(),

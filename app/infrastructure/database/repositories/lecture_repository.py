@@ -20,9 +20,7 @@ class SqlAlchemyLectureRepository(LectureRepository):
     async def get_by_ids(self, lecture_ids: list[UUID]) -> list[Lecture]:
         if not lecture_ids:
             return []
-        stmt = select(LectureModel).where(
-            LectureModel.id.in_([str(item) for item in lecture_ids]).execution_options(populate_existing=True)
-        )
+        stmt = select(LectureModel).where(LectureModel.id.in_([str(item) for item in lecture_ids])).execution_options(populate_existing=True)
         result = await self.session.execute(stmt)
         return [LectureMapper.to_domain(model) for model in result.scalars().all()]
 

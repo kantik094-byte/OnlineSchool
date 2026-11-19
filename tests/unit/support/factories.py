@@ -16,6 +16,9 @@ class UserFactory:
     def get_student(self, **fields) -> User:
         return User(**{'id': uuid4(), 'email': 'student@example.com', 'hashed_password': 'hashed::x', 'role': UserRole.STUDENT, **fields})
 
+    def get_author(self, **fields) -> User:
+        return User(**{'id': uuid4(), 'email': 'author@example.com', 'hashed_password': 'hashed::x', 'role': UserRole.AUTHOR, **fields})
+
 
 
 class ContentFactory:
@@ -29,7 +32,7 @@ class ContentFactory:
         self.uow = uow
 
     async def course(self, **fields) -> Course:
-        course = Course(**{'id': uuid4(), 'title': 'Course', 'description': 'Description', **fields})
+        course = Course(**{'id': uuid4(), 'title': 'Course', 'description': 'Description', 'author_id': uuid4(), **fields})
 
         await self.uow.courses.add(course)
         return course

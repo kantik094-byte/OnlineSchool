@@ -7,7 +7,7 @@ from app.application.exceptions import (
     CourseNotFoundError,
     LectureNotFoundError,
     CourseModuleNotFoundError,
-    SectionNotFoundError, AuthenticationError,
+    SectionNotFoundError, AuthenticationError, QuestionNotFoundError, AnswerOptionNotFoundError, QuestionAlreadyUsedError,
 )
 from app.domain.exceptions import DomainError
 from app.presentation.api.schemas import ErrorResponse
@@ -58,6 +58,22 @@ async def section_not_found_handler(request: Request, exc: Exception) -> JSONRes
     )
 
 
+async def question_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error="question_not_found",
+        message=str(exc),
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
+async def answer_option_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error="answer_option_not_found",
+        message=str(exc),
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
 async def lecture_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
     return build_error_response(
         error="lecture_not_found",
@@ -82,6 +98,14 @@ async def permission_denied_handler(request: Request, exc: Exception) -> JSONRes
     )
 
 
+async def question_already_used_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error='question_already_used',
+        message=str(exc),
+        status_code=status.HTTP_409_CONFLICT,
+    )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, domain_error_handler)
     app.add_exception_handler(ApplicationError, application_error_handler)
@@ -91,3 +115,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(CourseModuleNotFoundError, module_not_found_handler)
     app.add_exception_handler(SectionNotFoundError, section_not_found_handler)
     app.add_exception_handler(LectureNotFoundError, lecture_not_found_handler)
+    app.add_exception_handler(QuestionNotFoundError, question_not_found_handler)
+    app.add_exception_handler(AnswerOptionNotFoundError, answer_option_not_found_handler)
+    app.add_exception_handler(QuestionAlreadyUsedError, question_already_used_error_handler)

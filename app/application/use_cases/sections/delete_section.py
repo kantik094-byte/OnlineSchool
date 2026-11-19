@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.application.authorization import require_content_manager
 from app.application.exceptions import SectionNotFoundError, CourseModuleNotFoundError
-from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
 from app.domain.ordering import close_gap
 
 
@@ -14,16 +13,12 @@ class DeleteSectionCommand:
 
 
 class DeleteSectionUseCase:
-    def __init__(self, uow: UnitOfWork, idp: IdentityProvider) -> None:
+    def __init__(self, uow: UnitOfWork, access: CourseAccessService) -> None:
         self.uow = uow
-        self.idp = idp
+        self.access = access
 
     async def execute(self, command: DeleteSectionCommand) -> None:
-        await require_content_manager(self.idp)
-
-        section = await self.uow.sections.get_by_id(command.section_id)
-        if section is None:
-            raise SectionNotFoundError("Section not found.")
+        section = await self.access.ensure_can_manage_section(command.section_id)
 
         module = await self.uow.modules.get_for_update(section.module_id)
         if module is None:

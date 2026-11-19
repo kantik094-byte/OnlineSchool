@@ -5,6 +5,7 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio
 from dishka import Provider, Scope, from_context
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -41,12 +42,12 @@ async def test_engine(tmp_path_factory) -> AsyncIterator[AsyncEngine]:
 
 
 @pytest.fixture
-def session_factory(test_engine) -> async_sessionmaker[AsyncSession]:
+def session_factory(test_engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
     return async_sessionmaker(bind=test_engine, expire_on_commit=False)
 
 
 @pytest_asyncio.fixture
-async def app(session_factory):
+async def app(session_factory: async_sessionmaker[AsyncSession]) -> AsyncIterator[FastAPI]:
     container = create_container(
         TestDatabaseProvider(),
         context={async_sessionmaker[AsyncSession]: session_factory},
@@ -56,13 +57,13 @@ async def app(session_factory):
 
 
 @pytest_asyncio.fixture
-async def client(app) -> AsyncIterator[AsyncClient]:
+async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url='http://test') as client:
         yield client
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def clear_database(session_factory) -> None:
+async def clear_database(session_factory: async_sessionmaker[AsyncSession]) -> None:
     async with session_factory() as session:
         for model in [LectureModel, SectionModel, ModuleModel, CourseModel, UserModel]:
             await session.execute(delete(model))
@@ -70,7 +71,7 @@ async def clear_database(session_factory) -> None:
 
 
 @pytest_asyncio.fixture
-async def seeded_course_tree(session_factory):
+async def seeded_course_tree(session_factory: async_sessionmaker[AsyncSession]):
     ids = SimpleNamespace(course_id=str(uuid4()), module_id=str(uuid4()), section_id=str(uuid4()), lecture_id=str(uuid4()), course_title='FastAPI course',
                           lecture_content='Lecture content')
     async with session_factory() as session:
@@ -93,12 +94,12 @@ async def _seed_user(session_factory, email: str, role: str) -> UserModel:
 
 
 @pytest_asyncio.fixture
-async def seeded_student_user(session_factory):
+async def seeded_student_user(session_factory: async_sessionmaker[AsyncSession]):
     return await _seed_user(session_factory, 'student@example.com', 'student')
 
 
 @pytest_asyncio.fixture
-async def seeded_admin_user(session_factory):
+async def seeded_admin_user(session_factory: async_sessionmaker[AsyncSession]):
     return await _seed_user(session_factory, 'admin@example.com', 'admin')
 
 
@@ -109,10 +110,10 @@ async def _login(client: AsyncClient, email: str) -> dict[str, str]:
 
 
 @pytest_asyncio.fixture
-async def student_auth_headers(client, seeded_student_user):
+async def student_auth_headers(client: AsyncClient, seeded_student_user: UserModel):
     return await _login(client, seeded_student_user.email)
 
 
 @pytest_asyncio.fixture
-async def admin_auth_headers(client, seeded_admin_user):
+async def admin_auth_headers(client: AsyncClient, seeded_admin_user: UserModel):
     return await _login(client, seeded_admin_user.email)

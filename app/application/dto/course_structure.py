@@ -16,6 +16,8 @@ class SectionStructureDTO:
     description: str
     position: int
     lectures: list[LectureStructureDTO] = field(default_factory=list)
+    question_ids: list[UUID] = field(default_factory=list)
+
 
 
 @dataclass(slots=True)

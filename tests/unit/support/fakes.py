@@ -1,10 +1,11 @@
 from app.application.exceptions import InvalidTokenError, AuthenticationError
-from app.application.interfaces.repositories import UserRepository, LectureRepository, SectionRepository, ModuleRepository, CourseRepository
+from app.application.interfaces.repositories import UserRepository, LectureRepository, SectionRepository, ModuleRepository, \
+    CourseRepository, QuestionRepository, AnswerOptionRepository, QuestionAttemptRepository
 from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities import Course
+from app.domain.entities import Course, Question, AnswerOption
 from app.domain.entities.lecture import Lecture
 from app.domain.entities.module import Module
 from app.domain.entities.section import Section
@@ -153,13 +154,81 @@ class FakeUserRepository(UserRepository):
 
 
 
+class FakeQuestionRepository(QuestionRepository):
+
+    def __init__(self) -> None:
+        self.items = {}
+
+    async def get_by_id(self, question_id) -> Question | None:
+        return self.items.get(question_id, None)
+
+    async def get_by_ids(self, question_ids) -> list[Question]:
+        return [self.items[question_id] for question_id in question_ids if question_id in self.items]
+
+    async def get_for_update(self, question_id) -> Question | None:
+        return self.items.get(question_id, None)
+
+    async def add(self, question: Question) -> None:
+        self.items[question.id] = question
+
+    async def update(self, question: Question) -> None:
+        self.items[question.id] = question
+
+    async def update_many(self, questions: list[Question]) -> None:
+        for question in questions:
+            self.items[question.id] = question
+
+    async def remove(self, question: Question) -> None:
+        self.items.pop(question.id, None)
+
+
+
+class FakeAnswerOptionsRepository(AnswerOptionRepository):
+
+    def __init__(self) -> None:
+        self.items = {}
+
+    async def get_by_id(self, answer_option_id) -> AnswerOption | None:
+        return self.items.get(answer_option_id, None)
+
+    async def get_by_ids(self, answer_option_ids) -> list[AnswerOption]:
+        return [self.items[option_id] for option_id in answer_option_ids if option_id in self.items]
+
+    async def get_for_update(self, answer_option_id) -> AnswerOption | None:
+        return self.items.get(answer_option_id, None)
+
+    async def add(self, answer_option: AnswerOption) -> None:
+        self.items[answer_option.id] = answer_option
+
+    async def update(self, answer_option: AnswerOption) -> None:
+        self.items[answer_option.id] = answer_option
+
+    async def update_many(self, answer_options: list[AnswerOption]) -> None:
+        for answer_option in answer_options:
+            self.items[answer_option.id] = answer_option
+
+    async def remove(self, answer_option_id) -> None:
+        self.items.pop(answer_option_id, None)
+
+
+
+class FakeQuestionAttemptRepository(QuestionAttemptRepository):
+
+    async def exists_by_question_id(self, question_id) -> bool:
+        raise NotImplementedError
+
+
 class FakeUnitOfWork(UnitOfWork):
+
     def __init__(self) -> None:
         self.courses = FakeCourseRepository()
         self.modules = FakeModuleRepository()
         self.sections = FakeSectionRepository()
         self.lectures = FakeLectureRepository()
         self.users = FakeUserRepository()
+        self.questions = FakeQuestionRepository()
+        self.answer_options = FakeAnswerOptionsRepository()
+        self.question_attempts = FakeQuestionAttemptRepository()
         self.committed = False
 
     # async def __aenter__(self):

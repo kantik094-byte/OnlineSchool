@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy import select, func
 
 from app.infrastructure.database.models import CourseModel, ModuleModel, SectionModel, LectureModel

@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from app.application.authorization import require_content_manager
 from app.application.exceptions import CourseModuleNotFoundError
-from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
 from app.domain.entities.section import Section
 from app.domain.ordering import check_insert_position, make_room
 
@@ -18,12 +17,12 @@ class CreateSectionCommand:
 
 
 class CreateSectionUseCase:
-    def __init__(self, uow: UnitOfWork, idp: IdentityProvider) -> None:
+    def __init__(self, uow: UnitOfWork, access: CourseAccessService) -> None:
         self.uow = uow
-        self.idp = idp
+        self.access = access
 
     async def execute(self, command: CreateSectionCommand) -> Section:
-        await require_content_manager(self.idp)
+        await self.access.ensure_can_manage_module(command.module_id)
 
         module = await self.uow.modules.get_for_update(command.module_id)
         if module is None:

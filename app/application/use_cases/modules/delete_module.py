@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.application.authorization import require_content_manager
 from app.application.exceptions import CourseNotFoundError, CourseModuleNotFoundError
-from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
 from app.domain.ordering import close_gap
 
 
@@ -15,16 +14,12 @@ class DeleteModuleCommand:
 
 
 class DeleteModuleUseCase:
-    def __init__(self, uow: UnitOfWork, idp: IdentityProvider) -> None:
+    def __init__(self, uow: UnitOfWork, access: CourseAccessService) -> None:
         self.uow = uow
-        self.idp = idp
+        self.access = access
 
     async def execute(self, command: DeleteModuleCommand) -> None:
-        await require_content_manager(self.idp)
-
-        module = await self.uow.modules.get_by_id(command.module_id)
-        if module is None:
-            raise CourseModuleNotFoundError("Module not found.")
+        module = await self.access.ensure_can_manage_module(command.module_id)
 
         course = await self.uow.courses.get_for_update(module.course_id)
         if course is None:

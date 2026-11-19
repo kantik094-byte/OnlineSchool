@@ -9,7 +9,7 @@ from tests.unit.support.fakes import FakeIdentityProvider
 PASSWORD = '123'
 
 
-@pytest.mark.parametrize('user_role', [UserRole.ADMIN, UserRole.STUDENT])
+@pytest.mark.parametrize('user_role', [UserRole.ADMIN, UserRole.STUDENT, UserRole.AUTHOR])
 async def test_get_current_user(uow, fake_password_hasher, user_role) -> None:
     user = User(id=uuid4(), email='example@mail.ru', hashed_password=fake_password_hasher.hash(PASSWORD), role=user_role)
 

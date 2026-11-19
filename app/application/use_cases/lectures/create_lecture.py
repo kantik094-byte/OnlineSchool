@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from app.application.authorization import require_content_manager
 from app.application.exceptions import SectionNotFoundError
-from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
+from app.domain.entities import Question
 from app.domain.entities.lecture import Lecture
 from app.domain.ordering import make_room, check_insert_position
 
@@ -18,20 +18,32 @@ class CreateLectureCommand:
 
 
 class CreateLectureUseCase:
-    def __init__(self, uow: UnitOfWork, idp: IdentityProvider) -> None:
+    def __init__(self, uow: UnitOfWork, access: CourseAccessService) -> None:
         self.uow = uow
-        self.idp = idp
+        self.access = access
 
     async def execute(self, command: CreateLectureCommand) -> Lecture:
-        await require_content_manager(self.idp)
+        await self.access.ensure_can_manage_section(command.section_id)
 
         section = await self.uow.sections.get_for_update(command.section_id)
         if section is None:
             raise SectionNotFoundError('Section not found.')
 
-        siblings = await self.uow.lectures.get_by_ids(section.lecture_ids)
+        # Необходимо обновить позиции не только лекций, но и вопросов
+        sibling_lectures = await self.uow.lectures.get_by_ids(section.lecture_ids)
+        sibling_questions = await self.uow.questions.get_by_ids(section.question_ids)
+        siblings = sibling_lectures + sibling_questions
+
         check_insert_position(siblings, command.position)
-        await self.uow.lectures.update_many(make_room(siblings, command.position))
+        siblings_positions_updated = make_room(siblings, command.position)
+
+        # Отделяем лекции и обновляем только лекции
+        lecture_position_updated = [lecture for lecture in siblings_positions_updated if isinstance(lecture, Lecture)]
+        await self.uow.lectures.update_many(lecture_position_updated)
+
+        # Отделяем вопросы и обновляем только вопросы
+        question_position_updated = [question for question in siblings_positions_updated if isinstance(question, Question)]
+        await self.uow.questions.update_many(question_position_updated)
 
         lecture = Lecture(
             id=uuid4(),

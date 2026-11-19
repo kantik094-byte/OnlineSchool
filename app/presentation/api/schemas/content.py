@@ -47,6 +47,7 @@ class SectionBaseResponse(BaseModel):
 
 class SectionStructureResponse(SectionBaseResponse):
     lectures: list[LectureStructureResponse]
+    question_ids: list[UUID]
 
 
 class ModuleBaseResponse(BaseModel):

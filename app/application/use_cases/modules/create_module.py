@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from app.application.authorization import require_content_manager
 from app.application.exceptions import CourseNotFoundError
-from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
 from app.domain.entities.module import Module
 from app.domain.ordering import check_insert_position, make_room
 
@@ -18,12 +17,12 @@ class CreateModuleCommand:
 
 
 class CreateModuleUseCase:
-    def __init__(self, uow: UnitOfWork, idp: IdentityProvider) -> None:
+    def __init__(self, uow: UnitOfWork, access: CourseAccessService) -> None:
         self.uow = uow
-        self.idp = idp
+        self.access = access
 
     async def execute(self, command: CreateModuleCommand) -> Module:
-        await require_content_manager(self.idp)
+        await self.access.ensure_can_manage_course(command.course_id)
 
         course = await self.uow.courses.get_for_update(command.course_id)
         if course is None:

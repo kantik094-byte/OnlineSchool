@@ -14,13 +14,18 @@ from app.application.interfaces.services.identity_provider import IdentityProvid
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
 from app.application.use_cases import (CreateCourseUseCase, CreateLectureUseCase, CreateModuleUseCase, CreateSectionUseCase,
                                        DeleteCourseUseCase,
                                        DeleteLectureUseCase, DeleteModuleUseCase, DeleteSectionUseCase, GetCourseStructureUseCase,
                                        GetCourseUseCase,
                                        GetCoursesUseCase, GetCurrentUserUseCase, GetLectureUseCase, LoginUserUseCase,
                                        RegisterUserUseCase,
-                                       UpdateCourseUseCase, UpdateLectureUseCase, UpdateModuleUseCase, UpdateSectionUseCase)
+                                       UpdateCourseUseCase, UpdateLectureUseCase, UpdateModuleUseCase, UpdateSectionUseCase,
+                                       CreateAnswerOptionUseCase,
+                                       UpdateAnswerOptionUseCase)
+from app.application.use_cases.questions.create_question import CreateQuestionUseCase
+from app.application.use_cases.questions.update_question import UpdateQuestionUseCase
 from app.infrastructure.config import get_settings
 from app.infrastructure.config.settings import DatabaseSettings, JwtSettings, Settings
 from app.infrastructure.database import SqlAlchemyUnitOfWork
@@ -38,6 +43,11 @@ class AuthProvider(Provider):
         provides=IdentityProvider,
         scope=Scope.REQUEST,
     )
+
+
+class AccessProvider(Provider):
+    scope = Scope.REQUEST
+    access = provide(CourseAccessService)
 
 
 class ConfigProvider(Provider):
@@ -133,5 +143,10 @@ class UseCasesProvider(Provider):
         DeleteCourseUseCase,
         DeleteLectureUseCase,
         DeleteSectionUseCase,
-        DeleteModuleUseCase
+        DeleteModuleUseCase,
+        CreateAnswerOptionUseCase,
+        UpdateAnswerOptionUseCase,
+        CreateQuestionUseCase,
+        UpdateQuestionUseCase,
+
     )

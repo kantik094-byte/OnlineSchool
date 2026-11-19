@@ -12,7 +12,7 @@ from app.domain.entities.section import Section
 
 
 async def test_get_course_by_id(uow):
-    course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.")
+    course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.", author_id=uuid4())
     await uow.courses.add(course)
 
     use_case = GetCourseUseCase(uow.courses)
@@ -26,10 +26,10 @@ async def test_get_course_by_id(uow):
 
 
 async def test_get_courses(uow):
-    first_course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.")
+    first_course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.", author_id=uuid4())
     await uow.courses.add(first_course)
 
-    second_course = Course(id=uuid4(), title="SQLAlchemy course", description="ORM in practice.")
+    second_course = Course(id=uuid4(), title="SQLAlchemy course", description="ORM in practice.", author_id=uuid4())
     await uow.courses.add(second_course)
 
     use_case = GetCoursesUseCase(uow.courses)
@@ -42,7 +42,7 @@ async def test_get_courses(uow):
 
 async def test_get_course_structure(uow):
 
-    course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.")
+    course = Course(id=uuid4(), title="FastAPI course", description="Clean architecture in practice.", author_id=uuid4())
     module_first = Module(id=uuid4(), course_id=course.id, title="Module 1", description="Module description", position=1)
     section_first = Section(id=uuid4(), module_id=module_first.id, title="Section 1", description="Section description", position=1)
     lecture_first = Lecture(id=uuid4(), section_id=section_first.id, title="Lecture 1", content="First lecture", position=1)

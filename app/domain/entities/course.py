@@ -8,6 +8,7 @@ from app.domain.exceptions import InvalidCourseError
 class Course:
     id: UUID
     title: str
+    author_id: UUID
     description: str
     module_ids: list[UUID] = field(default_factory=list)
 
@@ -19,6 +20,9 @@ class Course:
             raise InvalidCourseError("Course title cannot be empty.")
         if not self.description or not self.description.strip():
             raise InvalidCourseError("Course description cannot be empty.")
+
+    def is_owned_by(self, user_id: UUID) -> bool:
+        return self.author_id == user_id
 
     def update(self, title: str, description: str) -> None:
         self.title = title

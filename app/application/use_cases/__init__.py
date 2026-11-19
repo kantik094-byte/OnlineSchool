@@ -1,3 +1,5 @@
+from app.application.use_cases.answer_options.create_answer_option import CreateAnswerOptionUseCase, CreateAnswerOptionCommand
+from app.application.use_cases.answer_options.update_answer_option import UpdateAnswerOptionUseCase
 from app.application.use_cases.auth.get_current_user import GetCurrentUserUseCase
 from app.application.use_cases.auth.login_user import LoginUserUseCase
 from app.application.use_cases.auth.register_user import RegisterUserUseCase
@@ -14,6 +16,8 @@ from app.application.use_cases.lectures.update_lecture import UpdateLectureUseCa
 from app.application.use_cases.modules.create_module import CreateModuleUseCase, CreateModuleCommand
 from app.application.use_cases.modules.delete_module import DeleteModuleUseCase
 from app.application.use_cases.modules.update_module import UpdateModuleUseCase, UpdateModuleCommand
+from app.application.use_cases.questions.create_question import CreateQuestionUseCase, CreateQuestionCommand
+from app.application.use_cases.questions.update_question import UpdateQuestionUseCase, UpdateQuestionCommand
 from app.application.use_cases.sections.create_sections import CreateSectionUseCase, CreateSectionCommand
 from app.application.use_cases.sections.delete_section import DeleteSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase, UpdateSectionCommand
@@ -50,6 +54,13 @@ __all__ = [
     'DeleteLectureUseCase',
     'DeleteModuleUseCase',
     'DeleteSectionUseCase',
+    'CreateQuestionUseCase',
+    'CreateQuestionCommand',
+    'CreateAnswerOptionUseCase',
+    'CreateAnswerOptionCommand',
+    'UpdateAnswerOptionUseCase',
+    'UpdateQuestionUseCase',
+    'UpdateQuestionCommand',
 
 ]
 

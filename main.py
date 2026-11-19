@@ -1,10 +1,12 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from dishka import Provider, AsyncContainer
 from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka, FastapiProvider
 from fastapi import FastAPI
 
-from app.di.providers import AuthProvider, ConfigProvider, DatabaseProvider, SecurityProvider, UseCasesProvider
+from app.di.providers import AuthProvider, ConfigProvider, DatabaseProvider, SecurityProvider, UseCasesProvider, AccessProvider
 from app.infrastructure.config import get_settings
 from app.presentation.api.handlers import register_exception_handlers
 from app.presentation.api.routes import router as api_router
@@ -19,10 +21,16 @@ def create_container(*overrides: Provider, context: dict | None = None) -> Async
         UseCasesProvider(),
         AuthProvider(),
         FastapiProvider(),
+        AccessProvider(),
         *overrides,          # тестовые провайдеры идут последними и перекрывают боевые
         context=context,
     )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield                                       # сервер работает
+    await app.state.dishka_container.close()    # остановка: закрыть APP-скоуп
 
 
 def create_app(container: AsyncContainer | None = None) -> FastAPI:
@@ -51,6 +59,7 @@ def create_app(container: AsyncContainer | None = None) -> FastAPI:
                 'description': 'Endpoints for user registration and login with JWT token issuing.',
             },
         ],
+        lifespan=lifespan
     )
 
     register_exception_handlers(app)

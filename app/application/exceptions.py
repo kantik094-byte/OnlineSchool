@@ -40,3 +40,15 @@ class InvalidTokenError(ApplicationError):
 
 class AuthenticationError(ApplicationError):
     pass
+
+
+class QuestionNotFoundError(ApplicationError):
+    pass
+
+
+class AnswerOptionNotFoundError(ApplicationError):
+    pass
+
+
+class QuestionAlreadyUsedError(ApplicationError):
+    pass

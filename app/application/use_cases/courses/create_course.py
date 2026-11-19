@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from app.application.authorization import require_content_manager
-from app.application.interfaces.services.identity_provider import IdentityProvider
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access import CourseAccessService
 from app.domain.entities.course import Course
 
 
@@ -14,15 +13,16 @@ class CreateCourseCommand:
 
 
 class CreateCourseUseCase:
-    def __init__(self, uow: UnitOfWork, idp: IdentityProvider) -> None:
+    def __init__(self, uow: UnitOfWork, access: CourseAccessService) -> None:
         self.uow = uow
-        self.idp = idp
+        self.access = access
 
     async def execute(self, command: CreateCourseCommand) -> Course:
-        await require_content_manager(self.idp)
+        user = await self.access.ensure_can_create_course()
 
         course = Course(
             id=uuid4(),
+            author_id=user.id,
             title=command.title,
             description=command.description,
         )

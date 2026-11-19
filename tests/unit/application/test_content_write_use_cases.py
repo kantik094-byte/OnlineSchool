@@ -4,6 +4,7 @@ import pytest
 
 from app.application.exceptions import CourseNotFoundError, CourseModuleNotFoundError, SectionNotFoundError, LectureNotFoundError, \
     AccessDeniedError, AuthenticationError
+from app.application.services.course_access import CourseAccessService
 from app.application.use_cases.courses.create_course import CreateCourseUseCase, CreateCourseCommand
 from app.application.use_cases.courses.delete_course import DeleteCourseUseCase, CourseDeleteCommand
 from app.application.use_cases.courses.update_course import UpdateCourseUseCase, UpdateCourseCommand
@@ -16,23 +17,22 @@ from app.application.use_cases.modules.update_module import UpdateModuleUseCase,
 from app.application.use_cases.sections.create_sections import CreateSectionUseCase, CreateSectionCommand
 from app.application.use_cases.sections.delete_section import DeleteSectionUseCase, DeleteSectionCommand
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase, UpdateSectionCommand
-from app.domain.entities import Course, UserRole
-from app.domain.entities.lecture import Lecture
+from app.domain.entities import Course
 from app.domain.entities.module import Module
 from app.domain.entities.section import Section
 from app.domain.exceptions import InvalidPositionError
 from tests.unit.support.assertions import positions
 from tests.unit.support.fakes import FakeIdentityProvider
 
-
-
-
-
 "================================================== Course =================================================="
 
-async def test_create_course_adds_course_and_commits_by_admin(uow, users) -> None:
 
-    use_case = CreateCourseUseCase(uow=uow, idp=FakeIdentityProvider(users.get_admin()))
+@pytest.mark.parametrize(("caller"), ["author", "admin"])
+async def test_create_course_adds_course_and_commits_by_admin_or_author(uow, users, caller) -> None:
+
+    user = users.get_admin() if caller == "admin" else users.get_author()
+
+    use_case = CreateCourseUseCase(uow=uow, access=CourseAccessService(uow, FakeIdentityProvider(user)))
 
     result = await use_case.execute(
         CreateCourseCommand(
